@@ -1,0 +1,33 @@
+
+spring:
+  application:
+    name: server
+  profiles:
+    default: true
+    active: default
+  main:
+    allow-bean-definition-overriding: true
+info:
+  component: Photo Sharing Application Server
+
+
+server:
+  port:
+    8080
+
+---
+spring:
+  cloud:
+    config:
+      uri: http://localhost:8080
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        default_schema: stock_management
+  datasource:
+    url: "jdbc:postgresql://localhost:5433/photo_sharing_app"
+    username: postgres
+    password: 12345
