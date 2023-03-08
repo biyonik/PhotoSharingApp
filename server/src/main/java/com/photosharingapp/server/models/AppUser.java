@@ -61,6 +61,9 @@ public class AppUser {
     @Column(name = "isActive")
     private boolean isActive;
 
+    @Column(name="isDeleted")
+    private boolean isDeleted;
+
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "appUser")
     private Set<UserRole> userRoles = new HashSet<>();
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)

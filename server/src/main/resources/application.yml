@@ -31,3 +31,11 @@ spring:
     url: "jdbc:postgresql://localhost:5433/photo_sharing_app"
     username: postgres
     password: 12345
+  mail:
+    host: smtp.gmail.com
+    port: 465
+    username: <<YOUR_EMAIL_ADDRESS>>
+    password: <<YOUR_EMAIL_PASSWORD>>
+    protocol: smtps
+support:
+  email: <<YOUR_EMAIL_ADDRESS>>
