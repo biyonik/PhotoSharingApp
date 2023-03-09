@@ -5,25 +5,18 @@ import com.photosharingapp.server.exceptions.concrete.comment.CommentNotCreatedE
 import com.photosharingapp.server.exceptions.concrete.comment.CommentNotDeletedException;
 import com.photosharingapp.server.exceptions.concrete.comment.CommentNotFoundException;
 import com.photosharingapp.server.exceptions.concrete.comment.CommentNotUpdatedException;
-import com.photosharingapp.server.exceptions.concrete.post.PostNotCreatedException;
-import com.photosharingapp.server.exceptions.concrete.post.PostNotDeletedException;
-import com.photosharingapp.server.exceptions.concrete.post.PostNotUpdatedException;
 import com.photosharingapp.server.exceptions.enums.concrete.FriendlyMessageCodes;
 import com.photosharingapp.server.models.Comment;
-import com.photosharingapp.server.models.Post;
 import com.photosharingapp.server.repositories.ICommentRepository;
 import com.photosharingapp.server.requests.comment.CreateCommentRequest;
 import com.photosharingapp.server.requests.comment.UpdateCommentRequest;
 import com.photosharingapp.server.services.ICommentService;
-import com.photosharingapp.server.utilities.ConstantUtility;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;

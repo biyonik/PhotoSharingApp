@@ -4,6 +4,8 @@ import com.photosharingapp.server.enums.Language;
 import com.photosharingapp.server.models.AppUser;
 import com.photosharingapp.server.requests.appuser.AppUserCreateRequest;
 import com.photosharingapp.server.requests.appuser.AppUserUpdateRequest;
+import com.photosharingapp.server.requests.appuser.ChangePasswordRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;
 import java.util.UUID;
@@ -18,7 +20,8 @@ public interface IAppUserService {
     AppUser create(Language language, AppUserCreateRequest appUserCreateRequest);
     AppUser update(Language language, UUID id, AppUserUpdateRequest appUserUpdateRequest);
     boolean delete(Language language, UUID id);
-    boolean changePassword(Language language, UUID id, String password);
+    boolean changePassword(Language language, UUID id, ChangePasswordRequest changePasswordRequest);
     boolean resetPassword(Language language, UUID id);
     boolean changeActiveStatus(Language language, UUID id);
+    String savePhoto(Language language, HttpServletRequest request, String filename);
 }

@@ -162,8 +162,8 @@ public class PostManager implements IPostService {
         Iterator<String> iterator = multipartHttpServletRequest.getFileNames();
         MultipartFile multipartFile = multipartHttpServletRequest.getFile(iterator.next());
         try {
-            byte[] bytes = multipartFile.getBytes();
-            Path path = Paths.get(ConstantUtility.POST_FOLDER + "/" + fileName + ".png");
+            byte[] bytes = multipartFile != null ? multipartFile.getBytes() : new byte[0];
+            Path path = Paths.get("%s/%s.png".formatted(ConstantUtility.POST_FOLDER, fileName));
             Files.write(path, bytes, StandardOpenOption.CREATE);
             return fileName;
         } catch (Exception ex) {

@@ -103,6 +103,81 @@ public class AppUserExceptionHandler {
                 .errorMessages(Collections.singletonList(exception.getMessage()))
                 .build();
     }
+
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ExceptionHandler(AppUserEmailAreadyExistsException.class)
+    public InternalApiResponse<String> handleAppUserEmailAreadyExistsException(AppUserEmailAreadyExistsException exception) {
+        return InternalApiResponse.<String>builder()
+                .friendlyMessageResponse(
+                        FriendlyMessageResponse.builder()
+                                .title(FriendlyMessageUtils.getFriendlyMessage(exception.getLanguage(), FriendlyMessageCodes.ERROR))
+                                .description(FriendlyMessageUtils.getFriendlyMessage(exception.getLanguage(), exception.getFriendlyMessageCode()))
+                                .build()
+                ).httpStatus(HttpStatus.CONFLICT)
+                .hasError(true)
+                .errorMessages(Collections.singletonList(exception.getMessage()))
+                .build();
+    }
+
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ExceptionHandler(AppUserUsernameAreadyExistsException.class)
+    public InternalApiResponse<String> handleAppUserUsernameAreadyExistsException(AppUserUsernameAreadyExistsException exception) {
+        return InternalApiResponse.<String>builder()
+                .friendlyMessageResponse(
+                        FriendlyMessageResponse.builder()
+                                .title(FriendlyMessageUtils.getFriendlyMessage(exception.getLanguage(), FriendlyMessageCodes.ERROR))
+                                .description(FriendlyMessageUtils.getFriendlyMessage(exception.getLanguage(), exception.getFriendlyMessageCode()))
+                                .build()
+                ).httpStatus(HttpStatus.CONFLICT)
+                .hasError(true)
+                .errorMessages(Collections.singletonList(exception.getMessage()))
+                .build();
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(AppUserNotFileUploadException.class)
+    public InternalApiResponse<String> handleAppUserNotFileUploadException(AppUserNotFileUploadException exception) {
+        return InternalApiResponse.<String>builder()
+                .friendlyMessageResponse(
+                        FriendlyMessageResponse.builder()
+                                .title(FriendlyMessageUtils.getFriendlyMessage(exception.getLanguage(), FriendlyMessageCodes.ERROR))
+                                .description(FriendlyMessageUtils.getFriendlyMessage(exception.getLanguage(), exception.getFriendlyMessageCode()))
+                                .build()
+                ).httpStatus(HttpStatus.BAD_REQUEST)
+                .hasError(true)
+                .errorMessages(Collections.singletonList(exception.getMessage()))
+                .build();
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(AppUserWrongPasswordException.class)
+    public InternalApiResponse<String> handleAppUserWrongPasswordException(AppUserWrongPasswordException exception) {
+        return InternalApiResponse.<String>builder()
+                .friendlyMessageResponse(
+                        FriendlyMessageResponse.builder()
+                                .title(FriendlyMessageUtils.getFriendlyMessage(exception.getLanguage(), FriendlyMessageCodes.ERROR))
+                                .description(FriendlyMessageUtils.getFriendlyMessage(exception.getLanguage(), exception.getFriendlyMessageCode()))
+                                .build()
+                ).httpStatus(HttpStatus.BAD_REQUEST)
+                .hasError(true)
+                .errorMessages(Collections.singletonList(exception.getMessage()))
+                .build();
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(AppUserPasswordAndConfirmPasswordNotMatchException.class)
+    public InternalApiResponse<String> handleAppUserPasswordAndConfirmPasswordNotMatchException(AppUserPasswordAndConfirmPasswordNotMatchException exception) {
+        return InternalApiResponse.<String>builder()
+                .friendlyMessageResponse(
+                        FriendlyMessageResponse.builder()
+                                .title(FriendlyMessageUtils.getFriendlyMessage(exception.getLanguage(), FriendlyMessageCodes.ERROR))
+                                .description(FriendlyMessageUtils.getFriendlyMessage(exception.getLanguage(), exception.getFriendlyMessageCode()))
+                                .build()
+                ).httpStatus(HttpStatus.BAD_REQUEST)
+                .hasError(true)
+                .errorMessages(Collections.singletonList(exception.getMessage()))
+                .build();
+    }
 }
 
 

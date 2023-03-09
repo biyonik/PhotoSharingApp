@@ -2,26 +2,34 @@ package com.photosharingapp.server.services.impl;
 
 import com.photosharingapp.server.enums.Language;
 import com.photosharingapp.server.exceptions.concrete.appuser.*;
+import com.photosharingapp.server.exceptions.concrete.post.PostNotFileUploadException;
 import com.photosharingapp.server.exceptions.enums.concrete.FriendlyMessageCodes;
 import com.photosharingapp.server.models.AppUser;
 import com.photosharingapp.server.repositories.IAppUserRepository;
 import com.photosharingapp.server.repositories.IRoleRepository;
 import com.photosharingapp.server.requests.appuser.AppUserCreateRequest;
 import com.photosharingapp.server.requests.appuser.AppUserUpdateRequest;
+import com.photosharingapp.server.requests.appuser.ChangePasswordRequest;
 import com.photosharingapp.server.services.IAppUserService;
+import com.photosharingapp.server.utilities.ConstantUtility;
 import com.photosharingapp.server.utilities.EmailUtility;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -108,6 +116,16 @@ public class AppUserManager implements IAppUserService {
     public AppUser create(Language language, AppUserCreateRequest appUserCreateRequest) {
         log.debug("[{}][createUser] request: {}", this.getClass().getSimpleName(), appUserCreateRequest);
         try {
+            AppUser emailIsExists = getByEmail(language, appUserCreateRequest.getEmail());
+            if (emailIsExists != null) {
+                throw new AppUserEmailAreadyExistsException(language, FriendlyMessageCodes.USER_EMAIL_ALREADY_EXISTS, "Email already exists error. Email: " + appUserCreateRequest.getEmail());
+            }
+
+            AppUser usernameIsExists = getByUsername(language, appUserCreateRequest.getUsername());
+            if (usernameIsExists != null) {
+                throw new AppUserUsernameAreadyExistsException(language, FriendlyMessageCodes.USER_USERNAME_ALREADY_EXISTS, "Username already exists error. Username: " + appUserCreateRequest.getUsername());
+            }
+
             String password = RandomStringUtils.randomAlphabetic(10);
             String encyrptedPassword = bCryptPasswordEncoder.encode(password);
             AppUser appUser = AppUser.builder()
@@ -121,7 +139,7 @@ public class AppUserManager implements IAppUserService {
             log.debug("[{}][createUser] -> response: {}", this.getClass().getSimpleName(), appUserResponse);
             return appUserResponse;
         } catch (Exception exception) {
-            throw new AppUserNotCreatedException(language, FriendlyMessageCodes.USER_CREATED_FAILED, "User request: "+ appUserCreateRequest);
+            throw new AppUserNotCreatedException(language, FriendlyMessageCodes.USER_CREATED_FAILED, "User request: " + appUserCreateRequest);
         }
     }
 
@@ -130,6 +148,21 @@ public class AppUserManager implements IAppUserService {
         log.debug("[{}][updateUser] -> request: {}", this.getClass().getSimpleName(), appUserUpdateRequest);
         try {
             AppUser user = getUserById(language, id);
+
+            if (!user.getEmail().equals(appUserUpdateRequest.getEmail())) {
+                AppUser emailIsExists = getByEmail(language, appUserUpdateRequest.getEmail());
+                if (emailIsExists != null) {
+                    throw new AppUserEmailAreadyExistsException(language, FriendlyMessageCodes.USER_EMAIL_ALREADY_EXISTS, "Email already exists error. Email: " + appUserUpdateRequest.getEmail());
+                }
+            }
+
+            if (!user.getUsername().equals(appUserUpdateRequest.getUsername())) {
+                AppUser usernameIsExists = getByUsername(language, appUserUpdateRequest.getUsername());
+                if (usernameIsExists != null) {
+                    throw new AppUserUsernameAreadyExistsException(language, FriendlyMessageCodes.USER_USERNAME_ALREADY_EXISTS, "Username already exists error. Username: " + appUserUpdateRequest.getUsername());
+                }
+            }
+
             user.setFullname(appUserUpdateRequest.getFullname());
             user.setUsername(appUserUpdateRequest.getUsername());
             user.setEmail(appUserUpdateRequest.getEmail());
@@ -140,7 +173,7 @@ public class AppUserManager implements IAppUserService {
             log.debug("[{}][updateUser] -> response: {}", this.getClass().getSimpleName(), userResponse);
             return userResponse;
         } catch (Exception exception) {
-            throw new AppUserNotUpdatedException(language, FriendlyMessageCodes.USER_UPDATED_FAILED, "appuser request: "+ appUserUpdateRequest.toString());
+            throw new AppUserNotUpdatedException(language, FriendlyMessageCodes.USER_UPDATED_FAILED, "appuser request: " + appUserUpdateRequest.toString());
         }
     }
 
@@ -161,14 +194,22 @@ public class AppUserManager implements IAppUserService {
     }
 
     @Override
-    public boolean changePassword(Language language, UUID id, String password) {
+    public boolean changePassword(Language language, UUID id, ChangePasswordRequest changePasswordRequest) {
         log.debug("[{}][changePassword] -> request id: {}", this.getClass().getSimpleName(), id);
         try {
             AppUser appUserById = getUserById(language, id);
-            String encryptedPassword = bCryptPasswordEncoder.encode(password);
+            if (!changePasswordRequest.getNewPassword().equals(changePasswordRequest.getConfirmNewPassword())) {
+                throw new AppUserPasswordAndConfirmPasswordNotMatchException(language, FriendlyMessageCodes.USER_PASSWORD_AND_CONFIRM_PASSWORD_NOT_MATCH, "Change failed. Because new password and confirm password does not match!");
+            }
+
+            if (!bCryptPasswordEncoder.matches(changePasswordRequest.getOldPassword(), appUserById.getPassword())) {
+                throw new AppUserWrongPasswordException(language, FriendlyMessageCodes.USER_PASSWORD_WRONG, "Password change failed. Because password is wrong! Does not matches current password");
+            }
+
+            String encryptedPassword = bCryptPasswordEncoder.encode(changePasswordRequest.getNewPassword());
             appUserById.setPassword(encryptedPassword);
             appUserRepository.save(appUserById);
-            javaMailSender.send(emailUtility.constructUpdatePasswordEmail(appUserById, password));
+            javaMailSender.send(emailUtility.constructUpdatePasswordEmail(appUserById, changePasswordRequest.getNewPassword()));
             log.debug("[{}][changePassword] -> request id: {}", this.getClass().getSimpleName(), id);
             return true;
         } catch (Exception exception) {
@@ -207,5 +248,23 @@ public class AppUserManager implements IAppUserService {
         } catch (Exception e) {
             throw new AppUserNotChangeActiveStatusException(language, FriendlyMessageCodes.USER_ACTIVE_STATUS_CHANGE_FAILED, "AppUser change active status at id: " + id);
         }
+    }
+
+    @Override
+    public String savePhoto(Language language, HttpServletRequest request, String filename) {
+        log.debug("[{}][savePhoto] -> request: {}", this.getClass().getSimpleName(), request);
+        MultipartHttpServletRequest multipartHttpServletRequest = (MultipartHttpServletRequest) request;
+        Iterator<String> iterator = multipartHttpServletRequest.getFileNames();
+        MultipartFile multipartFile = multipartHttpServletRequest.getFile(iterator.next());
+        try {
+            byte[] bytes = multipartFile != null ? multipartFile.getBytes() : new byte[0];
+            Path path = Paths.get("%s/%s.png".formatted(ConstantUtility.USER_FOLDER, filename));
+            Files.write(path, bytes, StandardOpenOption.CREATE);
+            log.debug("[{}][savePhoto] -> response: {}", this.getClass().getSimpleName(), path);
+            return path.toAbsolutePath().toString();
+        } catch (Exception ex) {
+            throw new PostNotFileUploadException(language, FriendlyMessageCodes.USER_PHOTO_UPLOAD_FAILED, "File upload operation failed for file name: " + filename);
+        }
+
     }
 }
