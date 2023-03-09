@@ -56,6 +56,9 @@ public class Post {
     @Column(name = "isActive")
     private boolean isActive;
 
+    @Column(name = "isDeleted")
+    private boolean isDeleted;
+
     @ManyToOne(targetEntity = AppUser.class)
     @JoinColumn()
     private AppUser user;
