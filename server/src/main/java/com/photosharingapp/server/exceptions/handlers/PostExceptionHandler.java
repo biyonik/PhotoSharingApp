@@ -88,6 +88,21 @@ public class PostExceptionHandler {
                 .errorMessages(Collections.singletonList(exception.getMessage()))
                 .build();
     }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(PostNotFileUploadException.class)
+    public InternalApiResponse<String> handlePostNotFileUploadException(PostNotFileUploadException exception) {
+        return InternalApiResponse.<String>builder()
+                .friendlyMessageResponse(
+                        FriendlyMessageResponse.builder()
+                                .title(FriendlyMessageUtils.getFriendlyMessage(exception.getLanguage(), FriendlyMessageCodes.ERROR))
+                                .description(FriendlyMessageUtils.getFriendlyMessage(exception.getLanguage(), exception.getFriendlyMessageCode()))
+                                .build()
+                ).httpStatus(HttpStatus.BAD_REQUEST)
+                .hasError(true)
+                .errorMessages(Collections.singletonList(exception.getMessage()))
+                .build();
+    }
 }
 
 

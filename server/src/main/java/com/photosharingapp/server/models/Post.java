@@ -43,6 +43,8 @@ public class Post {
     private String location;
     @Column(name = "likesCount")
     private Integer likesCount;
+    @Column(name="userImageId")
+    private UUID userImageId;
     @Builder.Default
     @Column(name="createdAt")
     @Temporal(TemporalType.TIMESTAMP)

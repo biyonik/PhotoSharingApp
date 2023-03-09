@@ -70,4 +70,8 @@ public class AppUser {
     private List<Post> posts;
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Post> likedPosts;
+
+    public void setPost(Post post) {
+        this.posts.add(post);
+    }
 }

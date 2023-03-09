@@ -14,9 +14,10 @@ public interface IPostService {
     Post getByCaption(Language language, String caption);
     List<Post> getAll(Language language);
     List<Post> getByUserId(Language language, UUID userId);
+    List<Post> getByUsername(Language language, String username);
     Post create(Language language, CreatePostRequest createPostRequest);
-    Post update(Language language, UpdatePostRequest updatePostRequest);
-    void Delete(Language language, UUID id);
-    void changeStatus(Language language, UUID id);
-    String savePostImage(HttpServletRequest request, String fileName);
+    Post update(Language language, UUID id, UpdatePostRequest updatePostRequest);
+    boolean delete(Language language, UUID id);
+    boolean changeStatus(Language language, UUID id);
+    String savePostImage(Language language, HttpServletRequest request, String fileName);
 }

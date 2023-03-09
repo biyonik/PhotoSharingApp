@@ -140,7 +140,7 @@ public class AppUserManager implements IAppUserService {
             log.debug("[{}][updateUser] -> response: {}", this.getClass().getSimpleName(), userResponse);
             return userResponse;
         } catch (Exception exception) {
-            throw new AppUserNotUpdatedException(language, FriendlyMessageCodes.USER_UPDATED_FAILED, "product request: "+ appUserUpdateRequest.toString());
+            throw new AppUserNotUpdatedException(language, FriendlyMessageCodes.USER_UPDATED_FAILED, "appuser request: "+ appUserUpdateRequest.toString());
         }
     }
 
@@ -205,7 +205,7 @@ public class AppUserManager implements IAppUserService {
             log.debug("[{}][changeActiveStatus] -> response id: {}", this.getClass().getSimpleName(), id);
             return true;
         } catch (Exception e) {
-            throw new AppUserNotDeletedException(language, FriendlyMessageCodes.USER_ACTIVE_STATUS_CHANGE_FAILED, "Product change active status at id: " + id);
+            throw new AppUserNotChangeActiveStatusException(language, FriendlyMessageCodes.USER_ACTIVE_STATUS_CHANGE_FAILED, "AppUser change active status at id: " + id);
         }
     }
 }
