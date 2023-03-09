@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 
+import java.io.Serializable;
 import java.util.*;
 
 @Builder
@@ -17,7 +18,8 @@ import java.util.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "appusers", schema = "photo_sharing")
-public class AppUser {
+public class AppUser implements Serializable {
+    private static final long serialVersionUID = 13462323L;
     @Id
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(

@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 
+import java.io.Serializable;
 import java.util.UUID;
 
 @Builder
@@ -17,7 +18,8 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "user_roles", schema = "photo_sharing")
-public class UserRole {
+public class UserRole implements Serializable {
+    private static final long serialVersionUID = 16762343L;
     @Id
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(
@@ -39,6 +41,7 @@ public class UserRole {
     private AppUser appUser;
 
     @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "roleId")
     @JsonIgnore
     private Role role;
 }

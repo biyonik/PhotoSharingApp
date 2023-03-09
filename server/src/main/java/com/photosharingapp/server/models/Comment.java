@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.UUID;
 
@@ -18,7 +19,8 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "comments", schema = "photo_sharing")
-public class Comment {
+public class Comment implements Serializable {
+    private static final long serialVersionUID = 1955323L;
     @Id
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(
@@ -49,6 +51,8 @@ public class Comment {
     private Date updatedAt = new Date();
     @Column(name="isActive")
     private boolean isActive;
+    @Column(name="isDeleted")
+    private boolean isDeleted;
 
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="userId")
