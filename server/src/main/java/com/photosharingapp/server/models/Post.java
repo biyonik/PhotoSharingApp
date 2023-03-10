@@ -45,8 +45,8 @@ public class Post implements Serializable {
     private String location;
     @Column(name = "likesCount")
     private Integer likesCount;
-    @Column(name="userImageId")
-    private UUID userImageId;
+    @Column(name="imageName")
+    private String imageName;
     @Builder.Default
     @Column(name="createdAt")
     @Temporal(TemporalType.TIMESTAMP)
@@ -68,4 +68,8 @@ public class Post implements Serializable {
     private AppUser user;
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "post")
     private List<Comment> comments;
+
+    public void setComment(Comment comment) {
+        this.comments.add(comment);
+    }
 }

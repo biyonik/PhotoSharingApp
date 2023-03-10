@@ -1,9 +1,11 @@
 package com.photosharingapp.server.requests.post;
 
 import com.photosharingapp.server.models.AppUser;
-import lombok.Getter;
+import lombok.Builder;
+import lombok.Data;
 
-@Getter
+@Data
+@Builder
 public class UpdatePostRequest {
     private String name;
     private String caption;

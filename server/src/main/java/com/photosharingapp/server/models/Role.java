@@ -40,6 +40,7 @@ public class Role implements Serializable {
     private String name;
 
 
+    @Builder.Default
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "role")
     private Set<UserRole> userRoles = new HashSet<>();
 }

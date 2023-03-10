@@ -26,7 +26,7 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     properties:
       hibernate:
-        default_schema: stock_management
+        default_schema: photo_sharing
   datasource:
     url: "jdbc:postgresql://localhost:5433/photo_sharing_app"
     username: postgres

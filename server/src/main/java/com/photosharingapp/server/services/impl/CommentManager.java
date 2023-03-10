@@ -6,11 +6,16 @@ import com.photosharingapp.server.exceptions.concrete.comment.CommentNotDeletedE
 import com.photosharingapp.server.exceptions.concrete.comment.CommentNotFoundException;
 import com.photosharingapp.server.exceptions.concrete.comment.CommentNotUpdatedException;
 import com.photosharingapp.server.exceptions.enums.concrete.FriendlyMessageCodes;
+import com.photosharingapp.server.models.AppUser;
 import com.photosharingapp.server.models.Comment;
+import com.photosharingapp.server.models.Post;
 import com.photosharingapp.server.repositories.ICommentRepository;
 import com.photosharingapp.server.requests.comment.CreateCommentRequest;
 import com.photosharingapp.server.requests.comment.UpdateCommentRequest;
+import com.photosharingapp.server.requests.post.UpdatePostRequest;
+import com.photosharingapp.server.services.IAppUserService;
 import com.photosharingapp.server.services.ICommentService;
+import com.photosharingapp.server.services.IPostService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,19 +34,34 @@ import java.util.UUID;
 public class CommentManager implements ICommentService {
     @Autowired
     private final ICommentRepository commentRepository;
+    @Autowired
+    private final IPostService postService;
+    @Autowired
+    private final IAppUserService appUserService;
 
     @Override
     public Comment create(Language language, CreateCommentRequest createCommentRequest) {
         log.debug("[{}][createComment] request: {}", this.getClass().getSimpleName(), createCommentRequest);
         try {
+            Post post = postService.getById(language, createCommentRequest.getPostId());
+            AppUser user = appUserService.getUserById(language, createCommentRequest.getUserId());
             Comment comment = Comment.builder()
                     .content(createCommentRequest.getContent())
-                    .user(createCommentRequest.getAppUser())
-                    .post(createCommentRequest.getPost())
+                    .user(user)
+                    .post(post)
                     .createdAt(new Date())
                     .isActive(true)
                     .build();
             Comment response = commentRepository.save(comment);
+            post.getComments().add(comment);
+            UpdatePostRequest updatePostRequest = UpdatePostRequest.builder()
+                    .name(post.getName())
+                    .caption(post.getCaption())
+                    .location(post.getLocation())
+                    .user(post.getUser())
+                    .imageName(post.getImageName())
+                    .build();
+            postService.update(language, createCommentRequest.getPostId(), updatePostRequest);
             log.debug("[{}][createComment] response: {}", this.getClass().getSimpleName(), response);
             return response;
         } catch (Exception ex) {

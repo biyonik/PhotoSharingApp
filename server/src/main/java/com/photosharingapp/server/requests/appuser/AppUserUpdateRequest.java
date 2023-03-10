@@ -1,8 +1,10 @@
 package com.photosharingapp.server.requests.appuser;
 
-import lombok.Getter;
+import lombok.Builder;
+import lombok.Data;
 
-@Getter
+@Data
+@Builder
 public class AppUserUpdateRequest {
     private String fullname;
     private String username;

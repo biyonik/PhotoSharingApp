@@ -3,6 +3,8 @@ package com.photosharingapp.server.services;
 import com.photosharingapp.server.enums.Language;
 import com.photosharingapp.server.models.Post;
 import com.photosharingapp.server.requests.post.CreatePostRequest;
+import com.photosharingapp.server.requests.post.DislikePostRequest;
+import com.photosharingapp.server.requests.post.LikePostRequest;
 import com.photosharingapp.server.requests.post.UpdatePostRequest;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -19,5 +21,7 @@ public interface IPostService {
     Post update(Language language, UUID id, UpdatePostRequest updatePostRequest);
     boolean delete(Language language, UUID id);
     boolean changeStatus(Language language, UUID id);
+    boolean like(Language language, LikePostRequest likePostRequest);
+    boolean dislike(Language language, DislikePostRequest disablePostRequest);
     String savePostImage(Language language, HttpServletRequest request, String fileName);
 }

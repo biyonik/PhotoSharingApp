@@ -1,12 +1,12 @@
 package com.photosharingapp.server.requests.comment;
 
-import com.photosharingapp.server.models.AppUser;
-import com.photosharingapp.server.models.Post;
-import lombok.Getter;
+import lombok.Data;
 
-@Getter
+import java.util.UUID;
+
+@Data
 public class CreateCommentRequest {
     private String content;
-    private AppUser appUser;
-    private Post post;
+    private UUID userId;
+    private UUID postId;
 }

@@ -3,10 +3,15 @@ package com.photosharingapp.server.services.impl;
 import com.photosharingapp.server.enums.Language;
 import com.photosharingapp.server.exceptions.concrete.post.*;
 import com.photosharingapp.server.exceptions.enums.concrete.FriendlyMessageCodes;
+import com.photosharingapp.server.models.AppUser;
 import com.photosharingapp.server.models.Post;
 import com.photosharingapp.server.repositories.IPostRepository;
+import com.photosharingapp.server.requests.appuser.AppUserUpdateRequest;
 import com.photosharingapp.server.requests.post.CreatePostRequest;
+import com.photosharingapp.server.requests.post.DislikePostRequest;
+import com.photosharingapp.server.requests.post.LikePostRequest;
 import com.photosharingapp.server.requests.post.UpdatePostRequest;
+import com.photosharingapp.server.services.IAppUserService;
 import com.photosharingapp.server.services.IPostService;
 import com.photosharingapp.server.utilities.ConstantUtility;
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,6 +34,8 @@ import java.util.*;
 public class PostManager implements IPostService {
     @Autowired
     private final IPostRepository postRepository;
+    @Autowired
+    private final IAppUserService appUserService;
 
     @Override
     public Post getById(Language language, UUID id) {
@@ -94,7 +101,7 @@ public class PostManager implements IPostService {
                     .location(createPostRequest.getLocation())
                     .user(createPostRequest.getUser())
                     .name(createPostRequest.getName())
-                    .userImageId(createPostRequest.getUser().getId())
+                    .imageName(createPostRequest.getImageName())
                     .build();
             createPostRequest.getUser().setPost(post);
             Post response = postRepository.save(post);
@@ -114,7 +121,7 @@ public class PostManager implements IPostService {
             post.setCaption(updatePostRequest.getCaption());
             post.setLocation(updatePostRequest.getLocation());
             post.setUser(updatePostRequest.getUser());
-            post.setUserImageId(updatePostRequest.getUser().getId());
+            post.setImageName(updatePostRequest.getImageName());
             post.setUpdatedAt(new Date());
             Post postResponse = postRepository.save(post);
             log.debug("[{}][updatePost] -> response: {}", this.getClass().getSimpleName(), postResponse);
@@ -137,6 +144,50 @@ public class PostManager implements IPostService {
             return true;
         } catch (Exception e) {
             throw new PostNotDeletedException(language, FriendlyMessageCodes.POST_DELETE_FAILED, "Post delete failed at id: " + id);
+        }
+    }
+
+    @Override
+    public boolean like(Language language, LikePostRequest likePostRequest) {
+        log.debug("[{}][like] -> request: {}", this.getClass().getSimpleName(), likePostRequest);
+        try {
+            Post post = getById(language, likePostRequest.getPostId());
+            AppUser user = appUserService.getUserById(language, likePostRequest.getUserId());
+            post.setLikesCount(1);
+            user.getLikedPosts().add(post);
+            postRepository.save(post);
+            AppUserUpdateRequest appUserUpdateRequest = AppUserUpdateRequest.builder()
+                    .email(user.getEmail())
+                    .bio(user.getBio())
+                    .fullname(user.getFullname())
+                    .build();
+            appUserService.update(language, user.getId(), appUserUpdateRequest);
+            log.debug("[{}][like] -> response: {}", this.getClass().getSimpleName(), true);
+            return true;
+        } catch (Exception ex) {
+            throw new PostNotLikedException(language, FriendlyMessageCodes.POST_LIKE_FAILED, "Post not liked at id: "+ likePostRequest.getPostId());
+        }
+    }
+
+    @Override
+    public boolean dislike(Language language, DislikePostRequest disablePostRequest) {
+        log.debug("[{}][dislike] -> request: {}", this.getClass().getSimpleName(), disablePostRequest);
+        try {
+            Post post = getById(language, disablePostRequest.getPostId());
+            AppUser user = appUserService.getUserById(language, disablePostRequest.getUserId());
+            post.setLikesCount(-1);
+            user.getLikedPosts().remove(post);
+            postRepository.save(post);
+            AppUserUpdateRequest appUserUpdateRequest = AppUserUpdateRequest.builder()
+                    .email(user.getEmail())
+                    .bio(user.getBio())
+                    .fullname(user.getFullname())
+                    .build();
+            appUserService.update(language, user.getId(), appUserUpdateRequest);
+            log.debug("[{}][dislike] -> response: {}", this.getClass().getSimpleName(), true);
+            return true;
+        } catch (Exception ex) {
+            throw new PostNotLikedException(language, FriendlyMessageCodes.POST_DISLIKE_FAILED, "Post not dislike at id: "+ disablePostRequest.getPostId());
         }
     }
 
